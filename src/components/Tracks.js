@@ -9,10 +9,18 @@ class Tracks extends Component {
         sizePerPage: 2,
         tracksQuery: '',
         filterarray: [],
+        searchStatus: true
     };
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.tracks !== prevProps.tracks) {
+            this.setState({tracksQuery: '', filterarray: []});
+        }
+    }
 
     updateTrackQuery = (e) => {
         this.setState({currentPage: 1});
+    // , searchStatus: true
         this.state.tracksQuery = e.target.value;
         this.searchTracks();
     };
@@ -26,8 +34,13 @@ class Tracks extends Component {
             filtertracks = tracks.filter(
                 track => track.name.toLowerCase().indexOf(this.state.tracksQuery.toLowerCase()) !== -1
             );
-            this.setState({filterarray: filtertracks});
+            if (filtertracks.length) {
+                this.setState({filterarray: filtertracks, searchStatus: true});
+            } else {
+                this.setState({searchStatus: false});
+            }
         }
+
     };
 
     changeCurrentPage = numPage => {
@@ -72,47 +85,50 @@ class Tracks extends Component {
         return (
             <div>
                 <hr/>
-                <input onChange={this.updateTrackQuery}
-                       placeholder='Search for a track'/>
+                <input id="TracksSearch"
+                       onChange={this.updateTrackQuery}
+                       placeholder='Search for a track'
+                       value={this.state.tracksQuery}/>
                 <br/>
                 {
-                    paginateTracks.map(track => {
-                        const {id, name, album, preview_url} = track;
-                        {
-                            this.state.tracksQuery === '' ? <h2>Null</h2> : <p>{this.state.tracksQuery}</p>
-                        }
-                        return (
-                            <div key={id}
-                                 onClick={this.playAudio(preview_url)}
-                                 className='track'>
+                    this.state.searchStatus ?
+                        <div>
+                            {paginateTracks.map(track => {
+                                const {id, name, album, preview_url} = track;
+                                return (
+                                    <div key={id}
+                                         onClick={this.playAudio(preview_url)}
+                                         className='track'>
 
-                                <img
-                                    src={album.images[0].url}
-                                    alt='track-image'
-                                    className='track-image'/>
-                                <p className='track-text'>{name}</p>
-                                <p className='track-icon'>{this.trackIcon(track)}</p>
-                            </div>
-
-                        )
-                    })
+                                        <img
+                                            src={album.images[0].url}
+                                            alt='track-image'
+                                            className='track-image'/>
+                                        <p className='track-text'>{name}</p>
+                                        <p className='track-icon'>{this.trackIcon(track)}</p>
+                                    </div>
+                                )
+                            })}
+                            <Pagination
+                                totalSize={tracks.length}
+                                currentPage={this.state.currentPage}
+                                changeCurrentPage={this.changeCurrentPage}
+                                sizePerPage={this.state.sizePerPage}/>
+                            <h2>current Page:{this.state.currentPage}</h2>
+                        </div> : <div>
+                            <h3>No Tracks Found!</h3>
+                        </div>
                 }
-                <Pagination
-                    totalSize={tracks.length}
-                    currentPage={this.state.currentPage}
-                    changeCurrentPage={this.changeCurrentPage}
-                    sizePerPage={this.state.sizePerPage}/>
-                <h2>current Page:{this.state.currentPage}</h2>
+
 
             </div>
         )
-
     }
 }
 
 export default Tracks;
 
-
+// return (<div><h3>No Tracks Found!</h3></div>)
 // this.state.tracksQuery === '' ? <div>{this.state.tracksQuery}</div>
 // <div>{this.state.tracksQuery}</div>
 
@@ -147,3 +163,4 @@ export default Tracks;
 // console.log('event-target-value', e.target.value);
 // console.log("In Render",this.state.tracksQuery);
 // console.log("tracksquery",this.state.tracksQuery," Length",this.state.tracksQuery.length);
+// this.state.tracksQuery === '' ? <h2>Null</h2> : <p>{this.state.tracksQuery}</p>

@@ -24284,13 +24284,15 @@ function (_Component) {
       currentPage: 1,
       sizePerPage: 2,
       tracksQuery: '',
-      filterarray: []
+      filterarray: [],
+      searchStatus: true
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "updateTrackQuery", function (e) {
       _this.setState({
         currentPage: 1
-      });
+      }); // , searchStatus: true
+
 
       _this.state.tracksQuery = e.target.value;
 
@@ -24305,11 +24307,18 @@ function (_Component) {
       });else {
         filtertracks = tracks.filter(function (track) {
           return track.name.toLowerCase().indexOf(_this.state.tracksQuery.toLowerCase()) !== -1;
-        });
+        }); // this.setState({filterarray: filtertracks});
 
-        _this.setState({
-          filterarray: filtertracks
-        });
+        if (filtertracks.length) {
+          _this.setState({
+            filterarray: filtertracks,
+            searchStatus: true
+          });
+        } else {
+          _this.setState({
+            searchStatus: false
+          });
+        }
       }
     });
 
@@ -24366,6 +24375,16 @@ function (_Component) {
   }
 
   _createClass(Tracks, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState, snapshot) {
+      if (this.props.tracks !== prevProps.tracks) {
+        this.setState({
+          tracksQuery: '',
+          filterarray: []
+        });
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -24379,16 +24398,15 @@ function (_Component) {
       var endIndex = this.state.sizePerPage * this.state.currentPage;
       var paginateTracks = tracks.slice(endIndex - this.state.sizePerPage, endIndex);
       return _react.default.createElement("div", null, _react.default.createElement("hr", null), _react.default.createElement("input", {
+        id: "TracksSearch",
         onChange: this.updateTrackQuery,
-        placeholder: "Search for a track"
-      }), _react.default.createElement("br", null), paginateTracks.map(function (track) {
+        placeholder: "Search for a track",
+        value: this.state.tracksQuery
+      }), _react.default.createElement("br", null), this.state.searchStatus ? _react.default.createElement("div", null, paginateTracks.map(function (track) {
         var id = track.id,
             name = track.name,
             album = track.album,
             preview_url = track.preview_url;
-        {
-          _this2.state.tracksQuery === '' ? _react.default.createElement("h2", null, "Null") : _react.default.createElement("p", null, _this2.state.tracksQuery);
-        }
         return _react.default.createElement("div", {
           key: id,
           onClick: _this2.playAudio(preview_url),
@@ -24407,14 +24425,15 @@ function (_Component) {
         currentPage: this.state.currentPage,
         changeCurrentPage: this.changeCurrentPage,
         sizePerPage: this.state.sizePerPage
-      }), _react.default.createElement("h2", null, "current Page:", this.state.currentPage));
+      }), _react.default.createElement("h2", null, "current Page:", this.state.currentPage)) : _react.default.createElement("div", null, _react.default.createElement("h3", null, "No Tracks Found!")));
     }
   }]);
 
   return Tracks;
 }(_react.Component);
 
-var _default = Tracks; // this.state.tracksQuery === '' ? <div>{this.state.tracksQuery}</div>
+var _default = Tracks; // return (<div><h3>No Tracks Found!</h3></div>)
+// this.state.tracksQuery === '' ? <div>{this.state.tracksQuery}</div>
 // <div>{this.state.tracksQuery}</div>
 // const paginateTracks = tracks.slice(((this.state.sizePerPage * this.state.currentPage) - this.state.sizePerPage), this.state.sizePerPage * this.state.currentPage);
 // startIndex: (this.state.sizePerPage * this.state.currentPage) - this.state.sizePerPage,
@@ -24441,6 +24460,7 @@ var _default = Tracks; // this.state.tracksQuery === '' ? <div>{this.state.track
 // console.log('event-target-value', e.target.value);
 // console.log("In Render",this.state.tracksQuery);
 // console.log("tracksquery",this.state.tracksQuery," Length",this.state.tracksQuery.length);
+// this.state.tracksQuery === '' ? <h2>Null</h2> : <p>{this.state.tracksQuery}</p>
 
 exports.default = _default;
 },{"react":"../node_modules/react/index.js","react-pagination-js":"../node_modules/react-pagination-js/dist/index.umd.js","react-pagination-js/dist/styles.css":"../node_modules/react-pagination-js/dist/styles.css"}],"components/Pagination.js":[function(require,module,exports) {
@@ -24659,7 +24679,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54085" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63782" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
