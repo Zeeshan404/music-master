@@ -24283,43 +24283,29 @@ function (_Component) {
       playingPreviewUrl: null,
       currentPage: 1,
       sizePerPage: 2,
-      tracksQuery: '',
-      filterarray: [],
-      searchStatus: true
+      tracksQuery: "",
+      filterarray: []
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "updateTrackQuery", function (e) {
       _this.setState({
         currentPage: 1
-      }); // , searchStatus: true
-
+      });
 
       _this.state.tracksQuery = e.target.value;
 
-      _this.searchTracks();
+      if (_this.state.tracksQuery === "") {
+        _this.setState({
+          filterarray: []
+        });
+      } else _this.searchTracks();
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "searchTracks", function () {
       var tracks = _this.props.tracks;
-      var filtertracks = [];
-      if (_this.state.tracksQuery === '') _this.setState({
-        filterarray: []
-      });else {
-        filtertracks = tracks.filter(function (track) {
-          return track.name.toLowerCase().indexOf(_this.state.tracksQuery.toLowerCase()) !== -1;
-        }); // this.setState({filterarray: filtertracks});
-
-        if (filtertracks.length) {
-          _this.setState({
-            filterarray: filtertracks,
-            searchStatus: true
-          });
-        } else {
-          _this.setState({
-            searchStatus: false
-          });
-        }
-      }
+      _this.state.filterarray = tracks.filter(function (track) {
+        return track.name.toLowerCase().indexOf(_this.state.tracksQuery.toLowerCase()) !== -1;
+      });
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "changeCurrentPage", function (numPage) {
@@ -24361,14 +24347,14 @@ function (_Component) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "trackIcon", function (track) {
       if (!track.preview_url) {
-        return _react.default.createElement("span", null, "N/A");
+        return _react.default.createElement("span", null, " N / A ");
       }
 
       if (_this.state.playing && _this.state.playingPreviewUrl === track.preview_url) {
-        return _react.default.createElement("span", null, "| |");
+        return _react.default.createElement("span", null, " | | ");
       }
 
-      return _react.default.createElement("span", null, "\u25B6");
+      return _react.default.createElement("span", null, " \u25B6");
     });
 
     return _this;
@@ -24379,7 +24365,7 @@ function (_Component) {
     value: function componentDidUpdate(prevProps, prevState, snapshot) {
       if (this.props.tracks !== prevProps.tracks) {
         this.setState({
-          tracksQuery: '',
+          tracksQuery: "",
           filterarray: []
         });
       }
@@ -24390,19 +24376,22 @@ function (_Component) {
       var _this2 = this;
 
       var tracks = this.props.tracks;
+      var paginateTracks = [];
+      var endIndex = this.state.sizePerPage * this.state.currentPage;
 
       if (this.state.filterarray.length) {
         tracks = this.state.filterarray;
+      } else if (this.state.tracksQuery != '' && this.state.filterarray.length == 0) {
+        tracks = [];
       }
 
-      var endIndex = this.state.sizePerPage * this.state.currentPage;
-      var paginateTracks = tracks.slice(endIndex - this.state.sizePerPage, endIndex);
+      paginateTracks = tracks.slice(endIndex - this.state.sizePerPage, endIndex);
       return _react.default.createElement("div", null, _react.default.createElement("hr", null), _react.default.createElement("input", {
         id: "TracksSearch",
         onChange: this.updateTrackQuery,
         placeholder: "Search for a track",
         value: this.state.tracksQuery
-      }), _react.default.createElement("br", null), this.state.searchStatus ? _react.default.createElement("div", null, paginateTracks.map(function (track) {
+      }), _react.default.createElement("br", null), paginateTracks.length ? _react.default.createElement("div", null, paginateTracks.map(function (track) {
         var id = track.id,
             name = track.name,
             album = track.album,
@@ -24417,15 +24406,15 @@ function (_Component) {
           className: "track-image"
         }), _react.default.createElement("p", {
           className: "track-text"
-        }, name), _react.default.createElement("p", {
+        }, " ", name, " "), _react.default.createElement("p", {
           className: "track-icon"
-        }, _this2.trackIcon(track)));
+        }, " ", _this2.trackIcon(track), " "));
       }), _react.default.createElement(_reactPaginationJs.default, {
         totalSize: tracks.length,
         currentPage: this.state.currentPage,
         changeCurrentPage: this.changeCurrentPage,
         sizePerPage: this.state.sizePerPage
-      }), _react.default.createElement("h2", null, "current Page:", this.state.currentPage)) : _react.default.createElement("div", null, _react.default.createElement("h3", null, "No Tracks Found!")));
+      }), _react.default.createElement("h2", null, " current Page : ", this.state.currentPage, " ")) : _react.default.createElement("div", null, _react.default.createElement("h3", null, " No Tracks Found! ")));
     }
   }]);
 
@@ -24463,58 +24452,7 @@ var _default = Tracks; // return (<div><h3>No Tracks Found!</h3></div>)
 // this.state.tracksQuery === '' ? <h2>Null</h2> : <p>{this.state.tracksQuery}</p>
 
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-pagination-js":"../node_modules/react-pagination-js/dist/index.umd.js","react-pagination-js/dist/styles.css":"../node_modules/react-pagination-js/dist/styles.css"}],"components/Pagination.js":[function(require,module,exports) {
-// import React, {Component} from 'react';
-// import axios from 'axios';
-// import {useEffect} from 'react';
-//
-// class Pagination extends Component {
-//     state = {
-//         posts: [],
-//         loading: false,
-//         currentPage: 1,
-//         postsPerPage: 10
-//     };
-//
-//
-//
-//
-//     useEffect = () => {
-//         const fetchPost = async () => {
-//             this.setState({loading: true});
-//             const res = await axios.get('https://jsonplaceholder.typicode.com/posts')
-//             this.setState({posts: res.data, loading: false});
-//         }
-//         fetchPost();
-//     };
-//
-//     render() {
-//         console.log(this.state.posts);
-//         return (
-//             <div>
-//                 <h2>Pagination</h2>
-//             </div>
-//         )
-//     }
-// }
-//
-// export default Pagination;
-//
-// {/*<Pagination*/
-// }
-// {/*    currentPage={this.state.currentPage}*/
-// }
-// {/*    totalPages={10}*/
-// }
-// {/*    changeCurrentPage={this.changeCurrentPage}*/
-// }
-// {/*    sizePerPage={2}*/
-// }
-// {/*/>*/
-// }
-// {/*<h2>current Page:{this.state.currentPage}</h2>*/
-// }
-},{}],"components/App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-pagination-js":"../node_modules/react-pagination-js/dist/index.umd.js","react-pagination-js/dist/styles.css":"../node_modules/react-pagination-js/dist/styles.css"}],"components/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24529,8 +24467,6 @@ var _Search = _interopRequireDefault(require("./Search"));
 var _Artist = _interopRequireDefault(require("./Artist"));
 
 var _Tracks = _interopRequireDefault(require("./Tracks"));
-
-var _Pagination = _interopRequireDefault(require("./Pagination"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24556,7 +24492,7 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var API_ADDRESS = 'https://spotify-api-wrapper.appspot.com';
+var API_ADDRESS = "https://spotify-api-wrapper.appspot.com";
 
 var App =
 /*#__PURE__*/
@@ -24613,12 +24549,12 @@ function (_Component) {
   _createClass(App, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.searchArtist('Alan');
+      this.searchArtist("Alan");
     }
   }, {
     key: "render",
     value: function render() {
-      return _react.default.createElement("div", null, _react.default.createElement("h2", null, "Music Master"), _react.default.createElement(_Search.default, {
+      return _react.default.createElement("div", null, _react.default.createElement("h2", null, " Music Master "), _react.default.createElement(_Search.default, {
         searchArtist: this.searchArtist
       }), _react.default.createElement(_Artist.default, {
         artist: this.state.artist
@@ -24633,7 +24569,7 @@ function (_Component) {
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./Search":"components/Search.js","./Artist":"components/Artist.js","./Tracks":"components/Tracks.js","./Pagination":"components/Pagination.js"}],"index.css":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./Search":"components/Search.js","./Artist":"components/Artist.js","./Tracks":"components/Tracks.js"}],"index.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -24679,7 +24615,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63782" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65349" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
